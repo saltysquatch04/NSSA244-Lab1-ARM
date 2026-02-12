@@ -6,12 +6,24 @@
             "defaultValue": "WEB1",
             "type": "String"
         },
+        "virtualMachines_WEB2_name": {
+            "defaultValue": "WEB2",
+            "type": "String"
+        },
         "sshPublicKeys_WEB1_key_name": {
             "defaultValue": "WEB1_key",
             "type": "String"
         },
+        "sshPublicKeys_WEB2_key_name": {
+            "defaultValue": "WEB2_key",
+            "type": "String"
+        },
         "publicIPAddresses_WEB1_ip_name": {
             "defaultValue": "WEB1-ip",
+            "type": "String"
+        },
+        "publicIPAddresses_WEB2_ip_name": {
+            "defaultValue": "WEB2-ip",
             "type": "String"
         },
         "virtualNetworks_VNET_LAB1_name": {
@@ -20,6 +32,10 @@
         },
         "networkInterfaces_web1187_z2_name": {
             "defaultValue": "web1187_z2",
+            "type": "String"
+        },
+        "networkInterfaces_WEB2_nic_name": {
+            "defaultValue": "WEB2_nic",
             "type": "String"
         },
         "networkSecurityGroups_NSG_WEB_name": {
@@ -77,6 +93,28 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2024-07-01",
             "name": "[parameters('publicIPAddresses_WEB1_ip_name')]",
+            "location": "eastus2",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": [],
+                "ddosSettings": {
+                    "protectionMode": "VirtualNetworkInherited"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('publicIPAddresses_WEB2_ip_name')]",
             "location": "eastus2",
             "sku": {
                 "name": "Standard",
@@ -170,7 +208,7 @@
                     },
                     "osDisk": {
                         "osType": "Linux",
-                        "name": "[concat(parameters('virtualMachines_WEB1_name'), '_OsDisk_1_244b5a9fcb524112b47a742c4a928cae')]",
+                        "name": "[concat(parameters('virtualMachines_WEB1_name'), '_OsDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {},
@@ -188,7 +226,7 @@
                             "publicKeys": [
                                 {
                                     "path": "/home/azureuser/.ssh/authorized_keys",
-                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC0akORcqszchR44xTvPhvPbeJ/SK7AwRReXSbhmeVJFFJcF6zvk4aX8qHaXWQO3U9t1Z9nOVDKIjl7x0X2A6aDD5m5FRZo39dAkTm+m1mq51g0LhpmahTvOsI5Pw+YYcdfYqtYF2+sUX5XqJA641OFOjqKIWYuuWvf+gv7FHrMLZyx+6vDPo/ubEHDKIgq13fw1wmOdc/QXaTL2wRiuwbVRNd58uBxsKuebpLj3kyUe1SBw8vieH8UZWfKIrZlebWXmPtBBiLDzwZuj9x4Qt0JX44JjDbsSlWJ8Xz/bR0yB5Ip8pRjG1psQjw0UfEp+3B6j49RFaMlYvMO68WBTs8CEojgk2v6vILOjvHrqMgaVv9C/ICtZ75Hv52awnxn3rI/44rAad90DKfB9v6Zbdy38kJpzeN6ixaqBgyF4s7GNLQLv2DHre922A2uts+gGZPFK0FlZqyFRezad1yZ8UWDTi3EXk440H1CfzJEX4tubvVUn8TlDii5rfI3su91Rj0= generated-by-azure"
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDEfI44ADOhE1te46rf/hHO08qLgMconlwNeRZer4T08h5JJzIcmzPZtHbREbiU+MDUid1J19J0EdCs6GoTnAP3Wc6oemSxm2lQOAc1X+O7vwxcCefkerFXf5WsBqfEQ6yAf4X76KXal5kW5ctLImcjclEXo+64F7djhMr6rM7fJh1j6SVkocY1cTqBvfXnVv7E4NYWKUipXV7JICI5l8In16xTiN8nGG+x85jmzyuOJSBjufyDTtk/K6tabwdxZ9I0YlFmR4Yw0ZvNUPxiysvy0dcJfzj0FBSpGQP+Im71cn7O5xeSnVDTUxz7mCsC2IRpuzNgyutxGcC2FxgJ7bIWdq7XYLcnKuVGhsmn2bIgpMMTb3EGDqaxPyySJEzvybRH2QrcsbA94bJ+GRPSQopjnV1BMT7nXZtY8SmJ4F4GJkMCZXY2VC4yhCqVtIy3o05DYkrVoE+leUrAwg62qnpHdjPuF6PbzogCFGaNAQZH8s8sCGJBan0qYdJiueZw+QiCZxgkWMb08jpoCep3RZhgYocPCN6fPgLe3f9C4EVZ+d1kP0YDntnGK7CwFcLrJUsVcJtWg3F2DGAFd6+PblK4U0sxjaM0m8E89TusJ6V+uuOlX4iKE/uipnFUoRB9Xv2DZCZHT8Cyt17sMISug6KJFd4a5NhkS8FBqJgbbosMFQ=="
                                 }
                             ]
                         },
@@ -212,6 +250,88 @@
                     "networkInterfaces": [
                         {
                             "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_web1187_z2_name'))]",
+                            "properties": {
+                                "deleteOption": "Detach"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-11-01",
+            "name": "[parameters('virtualMachines_WEB2_name')]",
+            "location": "eastus2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_WEB2_nic_name'))]"
+            ],
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D2s_v3"
+                },
+                "additionalCapabilities": {
+                    "hibernationEnabled": false
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "ubuntu-24_04-lts",
+                        "sku": "server",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualMachines_WEB2_name'), '_OsDisk')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {},
+                        "deleteOption": "Delete"
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_WEB2_name')]",
+                    "adminUsername": "azureuser",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "/home/azureuser/.ssh/authorized_keys",
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDceTyB2g9e/4qc6wN62Lq9bjKdSIfo0pDNY65AaYu5Yo1XtnpRI7H3bab8MbVliksXgMQ55c8JuYXrKEckrCGZvlicHTvewiuaj7iOxRYhRQoCVje6i/NdccDKkO6tVyO/Uaqw+tvINdhZ8GOB0EJ9s75XFDY8WehQXo4XDBZ1WUh7YwTVc7+/WeAgHICM4CxAVDP9mEgezEguWJD7uD1s3iNhh1KxtM2W6TYy7ua79oo5/9kzJkCfPWQvnrL/iVnrj0mKB1ujQFHBIX6lB8zEBtf+mgN8YrFbntuM3m9grxNiTomGuop3Pbv1rXZIjPKjFZZrsTDi7bcvKMLKEjnHY4SC4Tsbg0Ef0ySpL2LFyCYV1dxqwPxeTiRsjvV1cmCogZ8BwVWwsC8J61L70K4SaCAXOxEydEk/i4k7PBMj2gCe4uRjUTMuZNDrcmI7cXdPWcGK67s0I00JGWm3leE6uExwdUyqjyIQ5tRewSOFBynuhiGmZeIkKPgyzqXGa1hdlWyO453v2lYqZ6FSoyqd1NwPoBsSyjLfcH9wq1+RPd1TAsygNSvl+mCYCQlpUT1cnVxHeue4jLq9FX5fAvKkdaUtG/AQ1WMgzijw5jPhe0KuW0Sx/0bvVjZUHICYeJOQlwdFFs5vg08KM2ZYBd8fmAASr9QnKvKNTcH4WbmINQ=="
+                                }
+                            ]
+                        },
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "secureBootEnabled": true,
+                        "vTpmEnabled": true
+                    },
+                    "securityType": "TrustedLaunch"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_WEB2_nic_name'))]",
                             "properties": {
                                 "deleteOption": "Detach"
                             }
@@ -279,6 +399,54 @@
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_WEB1_ip_name'))]",
+                                "properties": {
+                                    "deleteOption": "Detach"
+                                }
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VNET_LAB1_name'), 'SUBNET-WEB')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_NSG_WEB_name'))]"
+                },
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('networkInterfaces_WEB2_nic_name')]",
+            "location": "eastus2",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_WEB2_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VNET_LAB1_name'), 'SUBNET-WEB')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_NSG_WEB_name'))]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_WEB2_nic_name')), '/ipConfigurations/ipconfig1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.0.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_WEB2_ip_name'))]",
                                 "properties": {
                                     "deleteOption": "Detach"
                                 }
