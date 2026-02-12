@@ -26,6 +26,10 @@
             "defaultValue": "WEB2-ip",
             "type": "String"
         },
+        "publicIPAddresses_LOAD_ip_name": {
+            "defaultValue": "LOAD-ip",
+            "type": "String"
+        },
         "virtualNetworks_VNET_LAB1_name": {
             "defaultValue": "VNET-LAB1",
             "type": "String"
@@ -115,6 +119,28 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2024-07-01",
             "name": "[parameters('publicIPAddresses_WEB2_ip_name')]",
+            "location": "eastus2",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "zones": [
+                "2"
+            ],
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": [],
+                "ddosSettings": {
+                    "protectionMode": "VirtualNetworkInherited"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('publicIPAddresses_LOAD_ip_name')]",
             "location": "eastus2",
             "sku": {
                 "name": "Standard",
