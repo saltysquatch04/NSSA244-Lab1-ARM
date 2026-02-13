@@ -35,7 +35,7 @@
             "type": "String"
         },
         "networkInterfaces_web1187_z2_name": {
-            "defaultValue": "web1187_z2",
+            "defaultValue": "WEB1_nic",
             "type": "String"
         },
         "networkInterfaces_WEB2_nic_name": {
@@ -47,8 +47,80 @@
             "type": "String"
         }
     },
-    "variables": {},
+    "variables": {
+        "lbName": "LAB2-LOAD-BALANCER",
+        "lbSkuName": "Standard",
+        "lbPublicIpAddressName": "LAB2-LOAD-ip",
+        "lbFrontEndName": "LoadBalancerFrontEnd",
+        "lbBackendPoolName": "LoadBalancerBackEndPool",
+        "lbProbeName": "loadBalancerHealthProbe"
+    },
     "resources": [
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2021-08-01",
+            "name": "[variables('lbName')]",
+            "location": "eastus2",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                {
+                    "name": "[variables('lbFrontEndName')]",
+                    "properties": {
+                    "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('lbPublicIpAddressName'))]"
+                    }
+                    }
+                }
+                ],
+                "backendAddressPools": [
+                {
+                    "name": "[variables('lbBackendPoolName')]"
+                }
+                ],
+                "loadBalancingRules": [
+                {
+                    "name": "myHTTPRule",
+                    "properties": {
+                    "frontendIPConfiguration": {
+                        "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('lbName'), variables('lbFrontEndName'))]"
+                    },
+                    "backendAddressPool": {
+                        "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), variables('lbBackendPoolName'))]"
+                    },
+                    "frontendPort": 80,
+                    "backendPort": 80,
+                    "enableFloatingIP": false,
+                    "idleTimeoutInMinutes": 15,
+                    "protocol": "Tcp",
+                    "enableTcpReset": true,
+                    "loadDistribution": "Default",
+                    "disableOutboundSnat": true,
+                    "probe": {
+                        "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('lbName'), variables('lbProbeName'))]"
+                    }
+                    }
+                }
+                ],
+                "probes": [
+                {
+                    "name": "[variables('lbProbeName')]",
+                    "properties": {
+                    "protocol": "Tcp",
+                    "port": 80,
+                    "intervalInSeconds": 5,
+                    "numberOfProbes": 2
+                    }
+                }
+                ],
+                "outboundRules": []
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('lbPublicIpAddressName'))]"
+            ]
+        },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2024-07-01",
@@ -140,7 +212,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2024-07-01",
-            "name": "[parameters('publicIPAddresses_LOAD_ip_name')]",
+            "name": "[variables('lbPublicIpAddressName')]",
             "location": "eastus2",
             "sku": {
                 "name": "Standard",
@@ -252,7 +324,7 @@
                             "publicKeys": [
                                 {
                                     "path": "/home/azureuser/.ssh/authorized_keys",
-                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDEfI44ADOhE1te46rf/hHO08qLgMconlwNeRZer4T08h5JJzIcmzPZtHbREbiU+MDUid1J19J0EdCs6GoTnAP3Wc6oemSxm2lQOAc1X+O7vwxcCefkerFXf5WsBqfEQ6yAf4X76KXal5kW5ctLImcjclEXo+64F7djhMr6rM7fJh1j6SVkocY1cTqBvfXnVv7E4NYWKUipXV7JICI5l8In16xTiN8nGG+x85jmzyuOJSBjufyDTtk/K6tabwdxZ9I0YlFmR4Yw0ZvNUPxiysvy0dcJfzj0FBSpGQP+Im71cn7O5xeSnVDTUxz7mCsC2IRpuzNgyutxGcC2FxgJ7bIWdq7XYLcnKuVGhsmn2bIgpMMTb3EGDqaxPyySJEzvybRH2QrcsbA94bJ+GRPSQopjnV1BMT7nXZtY8SmJ4F4GJkMCZXY2VC4yhCqVtIy3o05DYkrVoE+leUrAwg62qnpHdjPuF6PbzogCFGaNAQZH8s8sCGJBan0qYdJiueZw+QiCZxgkWMb08jpoCep3RZhgYocPCN6fPgLe3f9C4EVZ+d1kP0YDntnGK7CwFcLrJUsVcJtWg3F2DGAFd6+PblK4U0sxjaM0m8E89TusJ6V+uuOlX4iKE/uipnFUoRB9Xv2DZCZHT8Cyt17sMISug6KJFd4a5NhkS8FBqJgbbosMFQ=="
+                                    "keyData": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBsdx4HF1sYzDlUzRArxdOR2c6DYOtdvltSwLk0IyVfZ"
                                 }
                             ]
                         },
@@ -334,7 +406,7 @@
                             "publicKeys": [
                                 {
                                     "path": "/home/azureuser/.ssh/authorized_keys",
-                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDceTyB2g9e/4qc6wN62Lq9bjKdSIfo0pDNY65AaYu5Yo1XtnpRI7H3bab8MbVliksXgMQ55c8JuYXrKEckrCGZvlicHTvewiuaj7iOxRYhRQoCVje6i/NdccDKkO6tVyO/Uaqw+tvINdhZ8GOB0EJ9s75XFDY8WehQXo4XDBZ1WUh7YwTVc7+/WeAgHICM4CxAVDP9mEgezEguWJD7uD1s3iNhh1KxtM2W6TYy7ua79oo5/9kzJkCfPWQvnrL/iVnrj0mKB1ujQFHBIX6lB8zEBtf+mgN8YrFbntuM3m9grxNiTomGuop3Pbv1rXZIjPKjFZZrsTDi7bcvKMLKEjnHY4SC4Tsbg0Ef0ySpL2LFyCYV1dxqwPxeTiRsjvV1cmCogZ8BwVWwsC8J61L70K4SaCAXOxEydEk/i4k7PBMj2gCe4uRjUTMuZNDrcmI7cXdPWcGK67s0I00JGWm3leE6uExwdUyqjyIQ5tRewSOFBynuhiGmZeIkKPgyzqXGa1hdlWyO453v2lYqZ6FSoyqd1NwPoBsSyjLfcH9wq1+RPd1TAsygNSvl+mCYCQlpUT1cnVxHeue4jLq9FX5fAvKkdaUtG/AQ1WMgzijw5jPhe0KuW0Sx/0bvVjZUHICYeJOQlwdFFs5vg08KM2ZYBd8fmAASr9QnKvKNTcH4WbmINQ=="
+                                    "keyData": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGPM08aIULC9LoV1zhwAOG3xi6o9mbhfqwfhEDn9g8e"
                                 }
                             ]
                         },
@@ -411,7 +483,8 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_WEB1_ip_name'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VNET_LAB1_name'), 'SUBNET-WEB')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_NSG_WEB_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_NSG_WEB_name'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]"
             ],
             "kind": "Regular",
             "properties": {
@@ -433,7 +506,12 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VNET_LAB1_name'), 'SUBNET-WEB')]"
                             },
                             "primary": true,
-                            "privateIPAddressVersion": "IPv4"
+                            "privateIPAddressVersion": "IPv4",
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), variables('lbBackendPoolName'))]"
+                                }
+                            ]
                         }
                     }
                 ],
@@ -459,7 +537,8 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_WEB2_ip_name'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VNET_LAB1_name'), 'SUBNET-WEB')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_NSG_WEB_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_NSG_WEB_name'))]",
+                "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]"
             ],
             "kind": "Regular",
             "properties": {
@@ -481,7 +560,12 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_VNET_LAB1_name'), 'SUBNET-WEB')]"
                             },
                             "primary": true,
-                            "privateIPAddressVersion": "IPv4"
+                            "privateIPAddressVersion": "IPv4",
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), variables('lbBackendPoolName'))]"
+                                }
+                            ]
                         }
                     }
                 ],
